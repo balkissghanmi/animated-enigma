@@ -9,5 +9,5 @@ RUN go build -o /project/go-docker/build/myapp .
 
 FROM alpine:latest
 COPY --from=builder /project/go-docker/build/myapp /project/go-docker/build/myapp
-EXPOSE 8090
+EXPOSE 8081
 ENTRYPOINT [ "/project/go-docker/build/myapp" ]
