@@ -8,7 +8,6 @@ pipeline {
     PATH = "/usr/local/go/bin:${env.PATH}"
     DOCKERHUB_USERNAME = 'balkissd'
     STAGING_TAG = "${DOCKERHUB_USERNAME}/go:v1.0.0"
-   // SEMGREP_APP_TOKEN = '1c87866c63498142b962151e4b3f762e2d7b7b5985048391c299968d474708b8'
 }
     stages {
         stage('Checkout Git') {
@@ -30,42 +29,46 @@ pipeline {
 
             }
         }
-        stage("GoSec Security Scan") {
+         stage('Build') {
             steps {
                 script {
-                    
-                    // Run GoSec and output results to 'gosec-report.json'
-                    sh 'gosec ./...'
-                    sh 'golangci-lint run ./... > golangci-report.txt'
-                    sh'pwd'
-                   sh "ls -la"
-                  // sh "docker run -e SEMGREP_APP_TOKEN=${SEMGREP_APP_TOKEN} --rm -v ${PWD}:/goSem semgrep/semgrep semgrep ci "
-               // sh"docker run -e SEMGREP_APP_TOKEN=1c87866c63498142b962151e4b3f762e2d7b7b5985048391c299968d474708b8 --rm -v /var/lib/jenkins/workspace/GoL:/goSem -w /goSem semgrep/semgrep semgrep ci"
-                
+                    def govulncheck = sh(script: 'go get -u github.com/arthurbailao/govulncheck', returnStdout: true).trim()
+                    def goimports = sh(script: 'go get golang.org/x/tools/cmd/goimports', returnStdout: true).trim()
+                    def golint = sh(script: 'go get -u golang.org/x/lint/golint', returnStdout: true).trim()
+                    def staticcheck = sh(script: 'go get honnef.co/go/tools/cmd/staticcheck', returnStdout: true).trim()
+                    def golangciLint = sh(script: 'go install github.com/golangci/golangci-lint/cmd/golangci-lint', returnStdout: true).trim()
+                    def gosec = sh(script: 'go get github.com/securego/gosec/cmd/gosec/...', returnStdout: true).trim()
+
+                    sh "echo 'Installed govulncheck: $govulncheck'"
+                    sh "echo 'Installed goimports: $goimports'"
+                    sh "echo 'Installed golint: $golint'"
+                    sh "echo 'Installed staticcheck: $staticcheck'"
+                    sh "echo 'Installed golangci-lint: $golangciLint'"
+                    sh "echo 'Installed gosec: $gosec'"
                 }
             }
         }
 
-//    stage('SonarQube Analysis') {
-//       steps {
-//         script {
-//         withSonarQubeEnv (installationName: 'sonarqube-scanner') {
-//           sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=${SONARKEY} -Dsonar.sources=. -Dsonar.host.url=${SONARURL} -Dsonar.login=${SONARLOGIN} "
-//         }
-//       }
-//     }
-//     }
-    // stage('Docker'){
-    //     steps {
-    //         script{
-    //             sh "docker build -t ${STAGING_TAG} ."
-    //             withCredentials([usernamePassword(credentialsId: 'tc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-    //             sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
-    //             sh "docker push ${STAGING_TAG}"
-    //         } 
-    //     }
-    // }
-    // }
+        stage('Unit Test') {
+            steps {
+                sh 'go test ./...'
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                sh 'go vet ./...'
+                sh 'go tool vet --shadow .'
+                sh 'aligncheck ./...' // Assuming aligncheck is installed globally
+                sh 'go-critic ./...' // Assuming go-critic is installed globally
+                sh 'golint ./...'
+                sh 'goimports -w .'
+                sh 'gofmt -s -w .'
+                sh 'staticcheck ./...'
+                sh 'gosec ./...'
+                sh 'golangci-lint run'
+            }
+        }
     
     }
     }
