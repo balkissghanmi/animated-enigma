@@ -23,7 +23,7 @@ pipeline {
             steps {
                 sh 'pwd'
                 sh ' go version'
-                sh '/usr/local/go/bin/go build -o goL'
+                sh '/usr/local/go/bin/go build -o myapp'
                 sh '/usr/local/go/bin/go test'
 
 
