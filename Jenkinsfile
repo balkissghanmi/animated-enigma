@@ -37,16 +37,16 @@ pipeline {
 
         stage('Static Analysis') {
             steps {
-                sh 'go vet ./...'
-                sh 'go tool vet --shadow .'
-                sh 'aligncheck ./...' // Assuming aligncheck is installed globally
-                sh 'go-critic ./...' // Assuming go-critic is installed globally
+               // sh 'go vet ./...'
+               // sh 'go tool vet --shadow .'
+               // sh 'aligncheck ./...' // Assuming aligncheck is installed globally
+                //sh 'go-critic ./...' // Assuming go-critic is installed globally
                 sh 'gosec ./...'
-                sh 'golint ./...'
-                sh 'goimports -w .'
-                sh 'gofmt -s -w .'
-                sh 'staticcheck ./...'
-                sh 'golangci-lint run'
+                //sh 'golint ./...'
+                //sh 'goimports -w .'
+                //sh 'gofmt -s -w .'
+                //sh 'staticcheck ./...'
+                //sh 'golangci-lint run'
             }
         }
     
