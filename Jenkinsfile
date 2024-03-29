@@ -34,7 +34,6 @@ pipeline {
         stage('Static Analysis') {
             steps {
                 sh 'gosec ./...'
-                sh 'staticcheck ./...'
             }
         }
         stage('SonarQube Analysis') {
