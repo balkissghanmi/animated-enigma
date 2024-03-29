@@ -41,7 +41,8 @@ pipeline {
                // sh 'go tool vet --shadow .'
                // sh 'aligncheck ./...' // Assuming aligncheck is installed globally
                 //sh 'go-critic ./...' // Assuming go-critic is installed globally
-                sh 'gosec ./var/lib/jenkins/workspace/golang'
+                sh 'staticcheck ./...'
+                sh 'gosec ./var/lib/jenkins/workspace/golang/go.mod'
                 sh 'golint ./...'
                 //sh 'goimports -w .'
                 //sh 'gofmt -s -w .'
