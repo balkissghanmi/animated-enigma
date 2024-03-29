@@ -43,11 +43,10 @@ pipeline {
                 //sh 'go-critic ./...' // Assuming go-critic is installed globally
                 sh 'go install honnef.co/go/tools/cmd/staticcheck@latest'
                 sh 'staticcheck ./...'
-                sh 'gosec ./var/lib/jenkins/workspace/golang/go.mod'
+                sh 'gosec ./var/lib/jenkins/workspace/golang/'
                 sh 'golint ./...'
                 //sh 'goimports -w .'
                 //sh 'gofmt -s -w .'
-                //sh 'staticcheck ./...'
                 //sh 'golangci-lint run'
             }
         }
