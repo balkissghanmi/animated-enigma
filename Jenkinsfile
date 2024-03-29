@@ -39,14 +39,44 @@ pipeline {
             steps {
                // sh 'go vet ./...'
                // sh 'go tool vet --shadow .'
-               // sh 'aligncheck ./...' // Assuming aligncheck is installed globally
-                //sh 'go-critic ./...' // Assuming go-critic is installed globally
+               // sh 'aligncheck ./...' 
+                //sh 'go-critic ./...' 
                 sh 'gosec  ./...'
                 sh 'staticcheck ./...'
-                //sh 'gofmt -s -w .'
-                //sh 'golangci-lint run'
+                
             }
         }
-    
+            stage("Go SAST") {
+            steps {
+                script {
+                
+                }
+            }
+        }
+
+   stage('SonarQube Analysis') {
+      steps {
+        script {
+          sh"docker run -e SEMGREP_APP_TOKEN=1c87866c63498142b962151e4b3f762e2d7b7b5985048391c299968d474708b8 --rm -v /var/lib/jenkins/workspace/GoL:/goSem -w /goSem semgrep/semgrep semgrep ci"
+
+        withSonarQubeEnv (installationName: 'sonarqube-scanner') {
+          sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=${SONARKEY} -Dsonar.sources=. -Dsonar.host.url=${SONARURL} -Dsonar.login=${SONARLOGIN} "
+        }
+      }
+    }
+    }
+
+    stage('Docker'){
+        steps {
+            script{
+                sh "docker build -t ${STAGING_TAG} ."
+                withCredentials([usernamePassword(credentialsId: 'tc', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                sh "docker push ${STAGING_TAG}"
+                
+            } 
+        }
+    }
+    }
     }
     }
