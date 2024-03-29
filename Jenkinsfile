@@ -41,7 +41,7 @@ pipeline {
                // sh 'go tool vet --shadow .'
                // sh 'aligncheck ./...' // Assuming aligncheck is installed globally
                 //sh 'go-critic ./...' // Assuming go-critic is installed globally
-                sh 'gosec -exclude-dir=fmt ./... '
+                sh 'gosec  ./...'
                 sh 'golint ./...'
                 //sh 'goimports -w .'
                 //sh 'gofmt -s -w .'
